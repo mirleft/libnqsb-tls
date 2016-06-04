@@ -1,0 +1,12 @@
+S lib/**
+
+B _build/**
+
+PKG cstruct
+PKG ctypes
+PKG nocrypto
+PKG x509
+PKG tls
+PKG rresult
+PKG ipaddr
+PKG memcpy
