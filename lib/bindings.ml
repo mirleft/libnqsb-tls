@@ -112,7 +112,7 @@ struct
       "tls_close" (ptr tls @-> returning int) (fun _ -> 0)
 
   let () = I.internal
-      "tls_free" (ptr tls @-> returning void) (fun _ -> ())
+      "tls_free" (ptr tls @-> returning void) tls_free
 
   let () = I.internal
       "tls_config_clear_keys" (ptr tls_config @-> returning void) (fun _ -> ())

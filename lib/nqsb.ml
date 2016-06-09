@@ -72,3 +72,9 @@ let tls_server _ =
                      state = `NotConfigured;
                      linger = None; } in
   Root.create tls_server |> from_voidp tls
+
+let tls_free p =
+  if (ptr_compare (to_voidp p) null) == 0 then
+    ()
+  else
+    to_voidp p |> Root.release

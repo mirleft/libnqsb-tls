@@ -35,3 +35,5 @@ val tls_error : tls ptr -> string
 val tls_client : unit -> tls ptr
 
 val tls_server : unit -> tls ptr
+
+val tls_free : tls ptr -> unit
