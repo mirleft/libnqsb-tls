@@ -28,6 +28,8 @@ val tls_config_set_key_file : tls_config ptr -> string -> int
 
 val tls_config_set_key_mem :  tls_config ptr -> Unsigned.uint8 ptr -> int -> int
 
+val tls_config_clear_keys : tls_config ptr -> unit
+
 val tls_config_set_protocols :  tls_config ptr -> Unsigned.uint32 -> unit
 
 val tls_config_set_verify_depth :  tls_config ptr -> Unsigned.uint32 -> unit

@@ -115,7 +115,7 @@ struct
       "tls_free" (ptr tls @-> returning void) tls_free
 
   let () = I.internal
-      "tls_config_clear_keys" (ptr tls_config @-> returning void) (fun _ -> ())
+      "tls_config_clear_keys" (ptr tls_config @-> returning void) tls_config_clear_keys
 
   let () = I.internal
       "tls_load_file" (string @-> ptr size_t @-> string_opt @-> returning (ptr uint8_t)) tls_load_file

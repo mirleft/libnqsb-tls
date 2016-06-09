@@ -107,9 +107,15 @@ let tls_config_set_key_mem p buffer size =
   Root.set (to_voidp p) { config with key_mem = Some cs };
   0
 
+let tls_config_clear_keys p =
+  (* FIXME: The libtls doc says that this function should remove all key from memory, is that enough ? *)
+  let config = to_voidp p |> Root.get in
+  Root.set (to_voidp p) { config with key_mem = None }
+
 let tls_config_set_ciphers p ciphers =
   let config = to_voidp p |> Root.get in
-  Root.set (to_voidp p) { config with ciphers = Some ciphers }; 0
+  Root.set (to_voidp p) { config with ciphers = Some ciphers };
+  0
 
 let tls_config_set_protocols p proto =
   let config = to_voidp p |> Root.get in
