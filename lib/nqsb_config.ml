@@ -63,89 +63,70 @@ let tls_config_free p =
   else
     to_voidp p |> Root.release
 
-let tls_config_set_ca_file p file =
+let update_config p f =
   let config = to_voidp p |> Root.get in
-  Root.set (to_voidp p) { config with ca_file = Some file };
+  Root.set (to_voidp p) (f config);
   0
 
+let tls_config_set_ca_file p file =
+  update_config p (fun c -> { c with ca_file = Some file })
+
 let tls_config_set_ca_path p path =
-  let config = to_voidp p |> Root.get in
-  Root.set (to_voidp p) { config with ca_path = Some path };
-  0
+  update_config p (fun c -> { c with ca_path = Some path })
 
 let tls_config_set_ca_mem p buffer size =
   let buffer_char = Ctypes.coerce (ptr uint8_t) (ptr char) buffer in
   let barr = bigarray_of_ptr array1 size Bigarray.char buffer_char in
   let cs = Cstruct.of_bigarray barr in
-  let config = to_voidp p |> Root.get in
-  Root.set (to_voidp p) { config with ca_mem = Some cs };
-  0
+  update_config p (fun c -> { c with ca_mem = Some cs })
 
 let tls_config_set_cert_file p file =
-  let config = to_voidp p |> Root.get in
-  Root.set (to_voidp p) { config with cert_file = Some file };
-  0
+  update_config p (fun c -> { c with cert_file = Some file })
 
 let tls_config_set_cert_mem p buffer size =
   let buffer_char = Ctypes.coerce (ptr uint8_t) (ptr char) buffer in
   let barr = bigarray_of_ptr array1 size Bigarray.char buffer_char in
   let cs = Cstruct.of_bigarray barr in
-  let config = to_voidp p |> Root.get in
-  Root.set (to_voidp p) { config with cert_mem = Some cs };
-  0
+  update_config p (fun c -> { c with cert_mem = Some cs })
 
 let tls_config_set_key_file p file =
-  let config = to_voidp p |> Root.get in
-  Root.set (to_voidp p) { config with key_file = Some file };
-  0
+  update_config p (fun c -> { c with key_file = Some file })
 
 let tls_config_set_key_mem p buffer size =
   let buffer_char = Ctypes.coerce (ptr uint8_t) (ptr char) buffer in
   let barr = bigarray_of_ptr array1 size Bigarray.char buffer_char in
   let cs = Cstruct.of_bigarray barr in
-  let config = to_voidp p |> Root.get in
-  Root.set (to_voidp p) { config with key_mem = Some cs };
-  0
+  update_config p (fun c -> { c with key_mem = Some cs })
 
 let tls_config_clear_keys p =
   (* FIXME: The libtls doc says that this function should remove all key from memory, is that enough ? *)
-  let config = to_voidp p |> Root.get in
-  Root.set (to_voidp p) { config with key_mem = None }
+  ignore @@ update_config p (fun c -> { c with key_mem = None })
 
 let tls_config_set_ciphers p ciphers =
-  let config = to_voidp p |> Root.get in
-  Root.set (to_voidp p) { config with ciphers = Some ciphers };
-  0
+  update_config p (fun c -> { c with ciphers = Some ciphers })
 
 let tls_config_set_protocols p proto =
-  let config = to_voidp p |> Root.get in
-  Root.set (to_voidp p) { config with protocols = Some proto }
+  ignore @@ update_config p (fun c -> { c with protocols = Some proto })
 
 let tls_config_set_verify_depth p depth =
-  let config = to_voidp p |> Root.get in
-  Root.set (to_voidp p) { config with verify_depth = Some depth }
+  ignore @@ update_config p (fun c -> { c with verify_depth = Some depth })
 
 let tls_config_insecure_noverifycert p =
-  let config = to_voidp p |> Root.get in
-  Root.set (to_voidp p) { config with verify_server_cert = false;
-                                      verify_client_cert = false }
+  ignore @@ update_config p (fun c -> { c with verify_server_cert = false;
+                                     verify_client_cert = false })
 
 let tls_config_insecure_noverifyname p =
-  let config = to_voidp p |> Root.get in
-  Root.set (to_voidp p) { config with verify_server_name = false }
+  ignore @@ update_config p (fun c -> { c with verify_server_name = false })
 
 let tls_config_insecure_noverifytime p =
-  let config = to_voidp p |> Root.get in
-  Root.set (to_voidp p) { config with verify_time = false }
+  ignore @@ update_config p (fun c -> { c with verify_time = false })
 
 let tls_config_verify p =
-  let config = to_voidp p |> Root.get in
-  Root.set (to_voidp p) { config with verify_server_name = true;
-                                      verify_server_cert = true }
+  ignore @@ update_config p (fun c -> { c with verify_server_name = true;
+                                               verify_server_cert = true })
 
 let tls_config_verify_client p =
-  let config = to_voidp p |> Root.get in
-  Root.set (to_voidp p) { config with verify_client_cert = true }
+  ignore @@ update_config p (fun c -> { c with verify_client_cert = true })
 
 let tls_config_parse_protocols protocol_result s =
   let open Int64 in
