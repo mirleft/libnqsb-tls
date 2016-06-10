@@ -192,6 +192,23 @@ let tls_read p buf size =
   | Tls_want_pollin -> -2
   | Tls_want_pollout -> -3
 
+let tls_close p =
+  (* FIXME: handle more closing cases, close the fd if we opened the socket *)
+  try
+    let closed =
+      let ctx = to_voidp p |> Root.get in
+      match ctx.state with
+      | `Active tls ->
+        let (_, cs) = Tls.Engine.send_close_notify tls in
+        Utils.write_t ctx cs
+      | _ -> Ok 0 in
+    match closed with
+    | Ok _ -> 0
+    | Error _ -> -1
+  with
+  | Tls_want_pollin -> -2
+  | Tls_want_pollout -> -3
+
 let tls_accept_socket p pp socket =
   let ctx = to_voidp p |> Root.get in
   let cctx =

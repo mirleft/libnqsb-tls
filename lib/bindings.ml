@@ -109,7 +109,7 @@ struct
       "tls_config_set_ecdhecurve" (ptr tls_config @-> string @-> returning int) (fun _ _ -> 0)
 
   let () = I.internal
-      "tls_close" (ptr tls @-> returning int) (fun _ -> 0)
+      "tls_close" (ptr tls @-> returning int) tls_close
 
   let () = I.internal
       "tls_free" (ptr tls @-> returning void) tls_free
