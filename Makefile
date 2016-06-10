@@ -8,6 +8,7 @@ OCAMLDEP=ocamldep
 # The files used to build the stub generator.
 BINDING_FILES = $(BUILDDIR)/lib/nqsb.cmx           \
 		$(BUILDDIR)/lib/nqsb_x509.cmx      \
+		$(BUILDDIR)/lib/nqsb_peer.cmx      \
 		$(BUILDDIR)/lib/nqsb_unix.cmx      \
 		$(BUILDDIR)/lib/nqsb_config.cmx
 
@@ -18,6 +19,7 @@ GENERATOR_FILES= $(BINDING_FILES) \
 # The files from which we'll build a shared library.
 LIBFILES=$(BUILDDIR)/lib/nqsb.cmx			\
 	 $(BUILDDIR)/lib/nqsb_x509.cmx			\
+	 $(BUILDDIR)/lib/nqsb_peer.cmx			\
 	 $(BUILDDIR)/lib/nqsb_unix.cmx			\
 	 $(BUILDDIR)/lib/nqsb_config.cmx		\
          $(BUILDDIR)/lib/bindings.cmx			\
@@ -66,6 +68,7 @@ stubs: $(GENERATED)
 
 $(BUILDDIR)/lib/nqsb_config.cmx : $(BUILDDIR)/lib/nqsb_config.cmi
 $(BUILDDIR)/lib/nqsb_unix.cmx : $(BUILDDIR)/lib/nqsb_unix.cmi
+$(BUILDDIR)/lib/nqsb_peer.cmx : $(BUILDDIR)/lib/nqsb_peer.cmi
 $(BUILDDIR)/lib/nqsb.cmx : $(BUILDDIR)/lib/nqsb.cmi
 
 $(BUILDDIR)/stub/%.o:

@@ -2,6 +2,7 @@ open Ctypes
 open Foreign
 open Nqsb_config
 open Nqsb_unix
+open Nqsb_peer
 open Nqsb
 
 module Stubs (I : Cstubs_inverted.INTERNAL) =
@@ -119,5 +120,8 @@ struct
 
   let () = I.internal
       "tls_load_file" (string @-> ptr size_t @-> string_opt @-> returning (ptr uint8_t)) tls_load_file
+
+  let () = I.internal
+      "tls_peer_cert_provided" (ptr tls @-> returning int) tls_peer_cert_provided
 
 end
