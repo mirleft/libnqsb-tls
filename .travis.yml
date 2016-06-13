@@ -6,3 +6,8 @@ os:
   - osx
 env:
   - OCAML_VERSION=4.02
+  - OCAML_VERSION=4.03
+matrix:
+  exclude:
+    - os: osx
+      env: OCAML_VERSION=4.03
