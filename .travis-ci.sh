@@ -7,4 +7,4 @@ opam pin add --yes -n $(pwd)
 opam install --yes depext
 opam depext libnqsb-tls
 opam install --deps-only --yes libnqsb-tls
-opam install --build-test --yes --verbose libnqsb-tls
+opam install --yes --verbose libnqsb-tls
