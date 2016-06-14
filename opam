@@ -1,0 +1,22 @@
+opam-version: "1.2"
+name: "libnqsb-tls"
+version: "dev"
+maintainer: "decorne.en@gmail.com"
+author: ["Enguerrand Decorne <decorne.en@gmail.com>"]
+homepage: "https://github.com/mirleft/libnqsb-tls"
+dev-repo: "https://github.com/mirleft/libnqsb-tls.git"
+bug-reports: "https://github.com/mirleft/libnqsb-tls/issues"
+license: "MIT"
+build: [
+  [make]
+]
+depends: [
+   "ipaddr"
+   "rresult"
+   "tls"
+   "ctypes" {>= "0.6.1"}
+   "ctypes-foreign"
+   "nocrypto"
+   "memcpy"
+]
+available: [ ocaml-version >= "4.02.0" ]
