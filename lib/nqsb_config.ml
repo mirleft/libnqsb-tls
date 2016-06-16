@@ -166,7 +166,7 @@ let tls_config_parse_protocols protocol_result s =
         in parse_string flags xs
     | [] -> Some flags
   in
-  let splitted = Str.split (Str.regexp ",\|:") s in
+  let splitted = Str.split (Str.regexp ",\\|:") s in
   let protocols = parse_string zero splitted in
   match protocols with
   | None ->  -1
