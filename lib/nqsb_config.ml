@@ -247,6 +247,7 @@ let tls_configure tls_ptr tls_conf_ptr =
 
 let tls_config_prefer_ciphers_server p = (* FIXME: handle this option  *) ()
 
+let tls_config_prefer_ciphers_client p = (* FIXME: handle this option  *) ()
 
 let tls_load_file path len_ptr _ =
   (* FIXME: handle the password parameter when supplied *)
