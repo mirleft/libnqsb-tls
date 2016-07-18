@@ -57,4 +57,6 @@ val tls_configure : Nqsb.tls ptr -> tls_config ptr -> int
 
 val tls_config_prefer_ciphers_server : tls_config ptr -> unit
 
+val tls_config_prefer_ciphers_client : tls_config ptr -> unit
+
 val tls_load_file : string -> Unsigned.Size_t.t Ctypes.ptr -> string option -> Unsigned.uint8 Ctypes_static.ptr

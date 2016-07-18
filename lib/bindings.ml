@@ -87,6 +87,9 @@ struct
       "tls_config_prefer_ciphers_server" (ptr tls_config @-> returning void) tls_config_prefer_ciphers_server
 
   let () = I.internal
+      "tls_config_prefer_ciphers_client" (ptr tls_config @-> returning void) tls_config_prefer_ciphers_client
+
+  let () = I.internal
       "tls_server" (void @-> returning (ptr tls)) tls_server
 
   let () = I.internal
