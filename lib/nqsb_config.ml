@@ -258,7 +258,7 @@ let tls_load_file path len_ptr _ =
 
   let loaded_file =
     Nqsb_x509.read_file path >>= fun (file : Cstruct.t) ->
-    match malloc (file.len * (Ctypes.sizeof Ctypes.char)) with
+    match Malloc.malloc (Unsigned.Size_t.of_int (file.len * (Ctypes.sizeof Ctypes.char))) with
     | p when (ptr_compare null p) = 0 -> Error "Couldn't allocate buffer"
     | p -> Ok p >>= fun buffer ->
       let src = Cstruct.to_bigarray file in
