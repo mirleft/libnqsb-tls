@@ -54,34 +54,48 @@ module Utils = struct
     | cs ->
       write fd cs >>= o (write_full fd ) (Cstruct.shift cs) >>= fun () -> Ok ()
 
+  let connect host service =
+    resolve host service >>= fun addr ->
+    let fd = Unix.(socket (Unix.domain_of_sockaddr addr) SOCK_STREAM 0) in
+    (match Unix.connect fd addr with
+     | () -> Ok fd
+     | exception _ -> Error (`UnixError "connect: Error"))
+
 end
 
-let tls_connect p host service =
+let tls_connect_aux ctx servername fd =
+
+  (match ctx.config with
+  | None -> Error (`Tls_other "Context not configured")
+  | Some config -> Ok config)
+
+  >>= fun (version, ciphers, authenticator, certificates) ->
+  let config = Tls.Config.client ?version ?ciphers ~authenticator ~certificates () in
+  let peer = Tls.Config.peer config servername in
+  let tls = Tls.Engine.client peer in
+  Ok { ctx with fd = Some fd; state = (`Init tls); }
+
+let tls_connect_servername p host service servername =
   let ctx = to_voidp p |> Root.get in
-  let aux _ =
-    Utils.resolve host service >>= fun addr ->
-    let fd = Unix.(socket (Unix.domain_of_sockaddr addr) SOCK_STREAM 0) in
-
-    (match Unix.connect fd addr with
-    | () -> Ok fd
-    | exception _ -> Error (`UnixError "connect: Error"))
-    >>= fun fd ->
-
-    (match ctx.config with
-    | None -> Error (`Tls_other "Context not configured")
-    | Some config -> Ok config)
-    >>= fun (version, ciphers, authenticator, certificates) ->
-
-    let config = Tls.Config.client ?version ?ciphers ~authenticator ~certificates () in
-    let peer = Tls.Config.peer config host in
-    let tls = Tls.Engine.client peer in
-    Ok { ctx with fd = Some fd; state = (`Init tls); } in
-
-  match aux () with
-  | Ok state ->
-    Root.set (to_voidp p) state; 0
+  Utils.connect host service >>|
+  tls_connect_aux ctx host |>
+  function
   | Error msg ->
     Root.set (to_voidp p) { ctx with error = Some msg }; -1
+  | Ok state ->
+    Root.set (to_voidp p) state; 0
+
+let tls_connect p host service =
+  tls_connect_servername p host service host
+
+let tls_connect_socket p socket servername =
+  let ctx = to_voidp p |> Root.get in
+  let fd = Obj.magic socket in
+  match tls_connect_aux ctx servername fd with
+  | Error msg ->
+    Root.set (to_voidp p) { ctx with error = Some msg }; -1
+  | Ok state ->
+    Root.set (to_voidp p) state; 0
 
 let rec handle_tls t =
 

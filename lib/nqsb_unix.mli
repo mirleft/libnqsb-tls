@@ -11,7 +11,11 @@ open Nqsb
 exception Tls_want_pollin
 exception Tls_want_pollout
 
+val tls_connect_servername : tls ptr -> string -> string -> string -> int
+
 val tls_connect : tls ptr -> string -> string -> int
+
+val tls_connect_socket : tls ptr -> int -> string -> int
 
 val tls_handshake : tls ptr -> int
 

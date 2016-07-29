@@ -102,6 +102,12 @@ struct
       "tls_connect" (ptr tls @-> string @-> string @-> returning int) tls_connect
 
   let () = I.internal
+      "tls_connect_servername" (ptr tls @-> string @-> string @-> string @-> returning int) tls_connect_servername
+
+  let () = I.internal
+      "tls_connect_socket" (ptr tls @-> int @-> string @-> returning int) tls_connect_socket
+
+  let () = I.internal
       "tls_handshake" (ptr tls @-> returning int) tls_handshake
 
   let () = I.internal
