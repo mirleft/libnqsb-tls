@@ -215,16 +215,18 @@ let tls_configure tls_ptr tls_conf_ptr =
 
   let parse_certificates c =
     let cert = match c.cert_file, c.cert_mem with
-      | (Some path), None -> Ok (`File path)
-      | _, (Some path) -> Ok (`Buffer path)
-      | None, None -> Error "Nqsb_x509. No certificate given" in
+      | (Some path), None -> Some (`File path)
+      | _, (Some path) -> Some (`Buffer path)
+      | None, None -> None in
     let priv_key = match c.key_file, c.key_mem with
-      | (Some path), None -> Ok (`File path)
-      | _, (Some path) -> Ok (`Buffer path)
-      | None, None -> Error "Nqsb_x509. No key given" in
-    priv_key >>= fun priv_key ->
-    cert >>= fun cert ->
-    Nqsb_x509.private_of_pems ~cert ~priv_key in
+      | (Some path), None -> Some (`File path)
+      | _, (Some path) -> Some (`Buffer path)
+      | None, None -> None in
+    match cert, priv_key with
+    | None, _ -> Ok `None
+    | Some cert, None -> Ok `None
+    | Some cert, Some priv_key ->
+       Nqsb_x509.private_of_pems ~cert ~priv_key in
 
   let config = to_voidp tls_conf_ptr |> Root.get in
   let (tls : Nqsb.t) = to_voidp tls_ptr |> Root.get in
