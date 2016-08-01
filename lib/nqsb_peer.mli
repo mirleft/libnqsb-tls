@@ -9,3 +9,17 @@ open Ctypes
 open Nqsb
 
 val tls_peer_cert_provided : tls ptr -> int
+
+val tls_conn_cipher : tls ptr -> string
+
+val tls_conn_version : tls ptr -> string
+
+val tls_peer_cert_subject : tls ptr -> string
+
+val tls_peer_cert_issuer : tls ptr -> string
+
+val tls_peer_cert_notbefore : tls ptr -> int
+
+val tls_peer_cert_notafter : tls ptr -> int
+
+val tls_peer_cert_hash : tls ptr -> string
