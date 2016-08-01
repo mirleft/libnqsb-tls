@@ -194,11 +194,11 @@ let tls_write p buf size =
     let written = write_bytes ctx cs in
     let () = Root.set (to_voidp p) ctx in
     match written with
-    | Ok i -> i
-    | Error e -> Root.set (to_voidp p) { ctx with error = Some e }; -1
+    | Ok _ -> PosixTypes.Ssize.of_int (Unsigned.Size_t.to_int size)
+    | Error e -> Root.set (to_voidp p) { ctx with error = Some e }; PosixTypes.Ssize.of_int (-1)
   with
-  | Tls_want_pollin -> -2
-  | Tls_want_pollout -> -3
+  | Tls_want_pollin -> (PosixTypes.Ssize.of_int (-2))
+  | Tls_want_pollout -> (PosixTypes.Ssize.of_int (-3))
 
 let tls_read p buf size =
   try

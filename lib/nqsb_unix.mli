@@ -19,7 +19,7 @@ val tls_connect_socket : tls ptr -> int -> string -> int
 
 val tls_handshake : tls ptr -> int
 
-val tls_write : tls ptr -> unit ptr -> Unsigned.size_t -> int
+val tls_write : tls ptr -> unit ptr -> Unsigned.size_t -> PosixTypes.Ssize.t
 
 val tls_read : tls ptr -> unit ptr -> Unsigned.size_t -> int
 

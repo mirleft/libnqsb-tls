@@ -111,7 +111,7 @@ struct
       "tls_handshake" (ptr tls @-> returning int) tls_handshake
 
   let () = I.internal
-      "tls_write" (ptr tls @-> ptr void @-> size_t @-> returning int) tls_write
+      "tls_write" (ptr tls @-> ptr void @-> size_t @-> returning PosixTypes.ssize_t) tls_write
 
   let () = I.internal
       "tls_read" (ptr tls @-> ptr void @-> size_t @-> returning int) tls_read
