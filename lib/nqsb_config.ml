@@ -256,8 +256,6 @@ let tls_load_file path len_ptr _ =
   let open Rresult in
   let open Cstruct in
 
-  let malloc = Foreign.foreign "malloc" (int @-> returning (ptr void)) in
-
   let loaded_file =
     Nqsb_x509.read_file path >>= fun (file : Cstruct.t) ->
     match Malloc.malloc (Unsigned.Size_t.of_int (file.len * (Ctypes.sizeof Ctypes.char))) with
