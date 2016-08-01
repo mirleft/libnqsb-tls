@@ -26,6 +26,8 @@ let get_cert ctx =
     | None -> None)
   | None -> None
 
+let some v = Some v
+
 let tls_peer_cert_provided p =
   let ctx = to_voidp p |> Root.get in
   match get_cert ctx with
@@ -37,40 +39,40 @@ let tls_conn_cipher p =
   match get_epoch ctx with
   | Some epoch ->
     Tls.Ciphersuite.sexp_of_ciphersuite epoch.ciphersuite
-    |> Sexplib.Conv.string_of_sexp
-  | None -> ""
+    |> Sexplib.Conv.string_of_sexp |> some
+  | None -> None
 
 let tls_conn_version p =
   let ctx = to_voidp p |> Root.get in
   match get_epoch ctx with
   | Some epoch ->
     Tls.Core.sexp_of_tls_version epoch.protocol_version
-    |> Sexplib.Conv.string_of_sexp
-  | None -> ""
+    |> Sexplib.Conv.string_of_sexp |> some
+  | None -> None
 
 let tls_peer_cert_subject p =
   let ctx = to_voidp p |> Root.get in
   match get_cert ctx with
   | Some cert ->
     X509.subject cert |>
-    X509.distinguished_name_to_string
-  | None -> ""
+    X509.distinguished_name_to_string |> some
+  | None -> None
 
 let tls_peer_cert_issuer p =
   let ctx = to_voidp p |> Root.get in
   match get_cert ctx with
   | Some cert ->
     X509.issuer cert |>
-    X509.distinguished_name_to_string
-  | None -> ""
+    X509.distinguished_name_to_string |> some
+  | None -> None
 
 let tls_peer_cert_hash p =
   let ctx = to_voidp p |> Root.get in
   match get_cert ctx with
   | Some cert ->
     X509.fingerprint `SHA256 cert
-    |> Cstruct.to_string
-  | None -> ""
+    |> Cstruct.to_string |> some
+  | None -> None
 
 let tls_peer_cert_notbefore p =
   (* FIXME: Strongly invalid. Placeholder implementation *) Unix.time () |> int_of_float

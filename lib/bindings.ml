@@ -141,16 +141,16 @@ struct
       "tls_peer_cert_provided" (ptr tls @-> returning int) tls_peer_cert_provided
 
   let () = I.internal
-      "tls_conn_cipher" (ptr tls @-> returning string) tls_conn_cipher
+      "tls_conn_cipher" (ptr tls @-> returning string_opt) tls_conn_cipher
 
   let () = I.internal
-      "tls_conn_version" (ptr tls @-> returning string) tls_conn_version
+      "tls_conn_version" (ptr tls @-> returning string_opt) tls_conn_version
 
   let () = I.internal
-      "tls_peer_cert_subject" (ptr tls @-> returning string) tls_peer_cert_subject
+      "tls_peer_cert_subject" (ptr tls @-> returning string_opt) tls_peer_cert_subject
 
   let () = I.internal
-      "tls_peer_cert_issuer" (ptr tls @-> returning string) tls_peer_cert_issuer
+      "tls_peer_cert_issuer" (ptr tls @-> returning string_opt) tls_peer_cert_issuer
 
   let () = I.internal
       "tls_peer_cert_notbefore" (ptr tls @-> returning int) tls_peer_cert_notbefore
@@ -159,5 +159,5 @@ struct
       "tls_peer_cert_notafter" (ptr tls @-> returning int) tls_peer_cert_notafter
 
   let () = I.internal
-      "tls_peer_cert_hash" (ptr tls @-> returning string) tls_peer_cert_hash
+      "tls_peer_cert_hash" (ptr tls @-> returning string_opt) tls_peer_cert_hash
 end
