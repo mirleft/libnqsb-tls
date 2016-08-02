@@ -207,11 +207,14 @@ let tls_configure tls_ptr tls_conf_ptr =
 
   let parse_authenticator c =
     (* FIXME: Need to handle no_verify_*_cert options *)
-    match c.ca_mem, c.ca_file, c.ca_path with
-    | (Some content), _, _ -> Nqsb_x509.authenticator (`Ca_mem content)
-    | _, (Some path), _ -> Nqsb_x509.authenticator (`Ca_file path)
-    | _, _, (Some path) -> Nqsb_x509.authenticator (`Ca_dir path)
-    | None, None, None -> Nqsb_x509.authenticator (`No_auth) in
+    if c.verify_client_cert || c.verify_client_cert then
+      match c.ca_mem, c.ca_file, c.ca_path with
+      | (Some content), _, _ -> Nqsb_x509.authenticator (`Ca_mem content)
+      | _, (Some path), _ -> Nqsb_x509.authenticator (`Ca_file path)
+      | _, _, (Some path) -> Nqsb_x509.authenticator (`Ca_dir path)
+      | None, None, None -> Nqsb_x509.authenticator (`No_auth)
+    else
+      Ok X509.Authenticator.null in
 
   let parse_certificates c =
     let cert = match c.cert_file, c.cert_mem with
