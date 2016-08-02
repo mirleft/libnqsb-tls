@@ -70,8 +70,9 @@ let tls_peer_cert_hash p =
   let ctx = to_voidp p |> Root.get in
   match get_cert ctx with
   | Some cert ->
-    X509.fingerprint `SHA256 cert
-    |> Cstruct.to_string |> some
+    let hash = X509.fingerprint `SHA256 cert in
+    (match Hex.of_cstruct hash with
+    | `Hex hex -> Some ("SHA256:" ^ hex))
   | None -> None
 
 let tls_peer_cert_notbefore p =

@@ -10,3 +10,4 @@ PKG tls
 PKG rresult
 PKG ipaddr
 PKG memcpy
+PKG hex

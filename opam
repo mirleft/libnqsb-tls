@@ -18,5 +18,6 @@ depends: [
    "ctypes-foreign"
    "nocrypto"
    "memcpy"
+   "hex"
 ]
 available: [ ocaml-version >= "4.02.0" ]
