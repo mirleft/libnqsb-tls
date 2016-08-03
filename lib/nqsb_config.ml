@@ -20,8 +20,9 @@ type t = {
   protocols : Unsigned.UInt32.t option;
   verify_server_cert : bool;
   verify_client_cert : bool;
-  verify_server_name : bool;
-  verify_time : bool;
+  noverify_time : bool;
+  noverify_cert : bool;
+  noverify_name : bool;
   verify_depth : Unsigned.UInt32.t option;
 }
 
@@ -57,9 +58,10 @@ let tls_config_new _ =
     key_mem = None;
     protocols = None;
     verify_server_cert = true;
-    verify_client_cert = true;
-    verify_server_name = true;
-    verify_time = true;
+    verify_client_cert = false;
+    noverify_cert = false;
+    noverify_name = false;
+    noverify_time = false;
     verify_depth = None;
   } in
   Root.create config |> from_voidp tls_config
@@ -119,18 +121,18 @@ let tls_config_set_verify_depth p depth =
   ignore @@ update_config p (fun c -> { c with verify_depth = Some depth })
 
 let tls_config_insecure_noverifycert p =
-  ignore @@ update_config p (fun c -> { c with verify_server_cert = false;
-                                     verify_client_cert = false })
+  ignore @@ update_config p (fun c -> { c with noverify_cert = true; })
 
 let tls_config_insecure_noverifyname p =
-  ignore @@ update_config p (fun c -> { c with verify_server_name = false })
+  ignore @@ update_config p (fun c -> { c with noverify_name = true; })
 
 let tls_config_insecure_noverifytime p =
-  ignore @@ update_config p (fun c -> { c with verify_time = false })
+  ignore @@ update_config p (fun c -> { c with noverify_time = true; })
 
 let tls_config_verify p =
-  ignore @@ update_config p (fun c -> { c with verify_server_name = true;
-                                               verify_server_cert = true })
+  ignore @@ update_config p (fun c -> { c with verify_server_cert = true;
+                                               noverify_name = false;
+                                               noverify_cert = false; })
 
 let tls_config_verify_client p =
   ignore @@ update_config p (fun c -> { c with verify_client_cert = true })
@@ -207,14 +209,19 @@ let tls_configure tls_ptr tls_conf_ptr =
 
   let parse_authenticator c =
     (* FIXME: Verify that this is the expected behavior from libtls *)
-    if c.verify_client_cert || c.verify_client_cert then
-      match c.ca_mem, c.ca_file, c.ca_path with
-      | (Some content), _, _ -> Nqsb_x509.authenticator (`Ca_mem content)
-      | _, (Some path), _ -> Nqsb_x509.authenticator (`Ca_file path)
-      | _, _, (Some path) -> Nqsb_x509.authenticator (`Ca_dir path)
-      | None, None, None -> Nqsb_x509.authenticator (`No_auth)
-    else
-      Nqsb_x509.authenticator (`No_auth) in
+    let noverify = c.noverify_cert || c.noverify_name || c.noverify_time in
+    let verify_cert = c.verify_client_cert || c.verify_server_cert in
+    match noverify with
+    | true -> Nqsb_x509.authenticator `Insecure
+    | false ->
+      match verify_cert with
+      | false -> Nqsb_x509.authenticator (`No_auth)
+      | true ->
+        match c.ca_mem, c.ca_file, c.ca_path with
+        | Some content, _, _ -> Nqsb_x509.authenticator (`Ca_mem content)
+        | _, Some path, _ -> Nqsb_x509.authenticator (`Ca_file path)
+        | _, _, Some path -> Nqsb_x509.authenticator (`Ca_dir path)
+        | None, None, None -> Nqsb_x509.authenticator (`No_auth) in
 
   let parse_certificates c =
     let cert = match c.cert_file, c.cert_mem with
