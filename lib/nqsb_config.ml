@@ -206,12 +206,13 @@ let tls_configure tls_ptr tls_conf_ptr =
     | None -> Ok None in
 
   let parse_authenticator c =
+    (* FIXME: Verify that this is the expected behavior from libtls *)
     if c.verify_client_cert || c.verify_client_cert then
       match c.ca_mem, c.ca_file, c.ca_path with
       | (Some content), _, _ -> Nqsb_x509.authenticator (`Ca_mem content)
       | _, (Some path), _ -> Nqsb_x509.authenticator (`Ca_file path)
       | _, _, (Some path) -> Nqsb_x509.authenticator (`Ca_dir path)
-      | None, None, None -> Error "No CA provided for authentication"
+      | None, None, None -> Nqsb_x509.authenticator (`No_auth)
     else
       Nqsb_x509.authenticator (`No_auth) in
 

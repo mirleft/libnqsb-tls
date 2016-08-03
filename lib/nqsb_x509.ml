@@ -94,7 +94,7 @@ let authenticator param =
   let of_cas cas =
     X509.Authenticator.chain_of_trust ~time cas in
   match param with
-  | `Ca_file path -> certs_of_pem path >>= fun certs -> Ok (of_cas certs)
-  | `Ca_mem path -> certs_of_pem_mem path >>= fun certs -> Ok (of_cas certs)
-  | `Ca_dir path -> certs_of_pem_dir path >>= fun certs -> Ok (of_cas certs)
-  | `No_auth -> Ok X509.Authenticator.null
+  | `Ca_file path -> certs_of_pem path >>= fun certs -> Ok (Some (of_cas certs))
+  | `Ca_mem path -> certs_of_pem_mem path >>= fun certs -> Ok (Some (of_cas certs))
+  | `Ca_dir path -> certs_of_pem_dir path >>= fun certs -> Ok (Some (of_cas certs))
+  | `No_auth -> Ok None

@@ -18,7 +18,7 @@ type t = {
   config : (
     (Tls.Core.tls_version * Tls.Core.tls_version) option *
     Tls.Ciphersuite.ciphersuite list option *
-    X509.Authenticator.a *
+    X509.Authenticator.a option *
     Tls.Config.own_cert
   ) option ;
   mutable fd : Unix.file_descr option ;

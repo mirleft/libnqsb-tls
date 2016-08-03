@@ -70,10 +70,14 @@ let tls_connect_aux ctx servername fd =
   | Some config -> Ok config)
 
   >>= fun (version, ciphers, authenticator, certificates) ->
-  let config = Tls.Config.client ?version ?ciphers ~authenticator ~certificates () in
-  let peer = Tls.Config.peer config servername in
-  let tls = Tls.Engine.client peer in
-  Ok { ctx with fd = Some fd; state = (`Init tls); }
+  match authenticator with
+  | None ->
+    Error (`Tls_other "Client auth enabled but no CA provided")
+  | Some authenticator ->
+    let config = Tls.Config.client ?version ?ciphers ~authenticator ~certificates () in
+    let peer = Tls.Config.peer config servername in
+    let tls = Tls.Engine.client peer in
+    Ok { ctx with fd = Some fd; state = (`Init tls); }
 
 let tls_connect_servername p host service servername =
   let ctx = to_voidp p |> Root.get in
@@ -237,7 +241,7 @@ let tls_accept_socket p pp socket =
      | None -> Error (`Tls_other "Context not configured")
      | Some config -> Ok config)
     >>= fun (version, ciphers, authenticator, certificates) ->
-    let config = Tls.Config.server ?version ?ciphers ~authenticator ~certificates () in
+    let config = Tls.Config.server ?version ?ciphers ?authenticator ~certificates () in
     let tls = Tls.Engine.server config in
     Ok { ctx with fd = Some (Obj.magic socket); state = (`Active tls) } in
   match cctx with
