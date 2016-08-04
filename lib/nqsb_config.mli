@@ -51,6 +51,8 @@ val tls_config_verify : tls_config ptr -> unit
 
 val tls_config_verify_client : tls_config ptr -> unit
 
+val tls_config_verify_client_optional : tls_config ptr -> unit
+
 val tls_config_parse_protocols : Unsigned.uint32 ptr -> string -> int
 
 val tls_configure : Nqsb.tls ptr -> tls_config ptr -> int

@@ -81,6 +81,9 @@ struct
       "tls_config_verify_client" (ptr tls_config @-> returning void) tls_config_verify_client
 
   let () = I.internal
+      "tls_config_verify_client_optional" (ptr tls_config @-> returning void) tls_config_verify_client_optional
+
+  let () = I.internal
       "tls_config_parse_protocols" (ptr uint32_t @-> string @-> returning int) tls_config_parse_protocols
 
   let () = I.internal

@@ -137,6 +137,8 @@ let tls_config_verify p =
 let tls_config_verify_client p =
   ignore @@ update_config p (fun c -> { c with verify_client_cert = true })
 
+let tls_config_verify_client_optional = tls_config_verify_client
+
 let tls_config_parse_protocols protocol_result s =
   let open Int64 in
   let rec parse_string flags patterns =
