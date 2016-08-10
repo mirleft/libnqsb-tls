@@ -12,6 +12,9 @@ open Ctypes
 exception Tls_want_pollin
 exception Tls_want_pollout
 
+(* Chunk size as defined in OpenSSL: src/ssl/ssl3.h *)
+let max_chunk = 16384
+
 module Utils = struct
 
   open Unix
@@ -26,8 +29,12 @@ module Utils = struct
     | ai::_ -> Ok ai.ai_addr
 
   let write fd cs =
+    let open Cstruct in
     let buf = Cstruct.to_string cs in
-    let res = Cstruct.(Unix.write fd buf cs.off cs.len) in
+    match Unix.single_write fd buf 0 cs.len with
+    | exception (Unix_error (Unix.EAGAIN, _, _)) -> Ok 0
+    | exception (Unix_error (e, _, _)) -> Error (`UnixError (error_message e))
+    | res -> Ok res >>= fun res ->
     match Unix.getsockopt_error fd with
     | None -> Ok res
     | Some err -> Error (`UnixError (error_message err))
@@ -39,20 +46,19 @@ module Utils = struct
     | None -> if res = 0 then Error `Eof else Ok (Cstruct.of_string (String.sub buf 0 res))
     | Some err -> Error (`UnixError (error_message err))
 
-  let write_t t cs =
+  let rec write_full fd = function
+    | cs when Cstruct.len cs = 0 -> Ok ()
+    | cs -> write fd cs >>= o (write_full fd ) (Cstruct.shift cs) >>= fun () -> Ok ()
+
+  let rec write_t t cs =
     match t.fd with
     | None -> Error (`Tls_other "No associated fd")
-    | Some fd -> try write fd cs with _ -> raise Tls_want_pollout
+    | Some fd -> write_full fd cs
 
   let read_t t =
     match t.fd with
     | None -> Error (`Tls_other "No associated fd")
     | Some fd -> try read fd with _ -> raise Tls_want_pollin
-
-  let rec write_full fd = function
-    | cs when Cstruct.len cs = 0 -> Ok ()
-    | cs ->
-      write fd cs >>= o (write_full fd ) (Cstruct.shift cs) >>= fun () -> Ok ()
 
   let connect host service =
     resolve host service >>= fun addr ->
@@ -114,7 +120,7 @@ let rec handle_tls t =
         | `Alert a -> `Error (`Tls_alert a) in
       (match resp with
        | Some cs -> Utils.write_t t cs
-       | None -> Ok 0)
+       | None -> Ok ())
       >>= fun _ ->
       let () = t.state <- state' in
       Ok data
@@ -176,14 +182,18 @@ let rec read_bytes t buf =
     | Some cs -> writeout cs
 
 let rec write_bytes t cs =
+  let len = if cs.Cstruct.len > max_chunk then max_chunk else cs.Cstruct.len in
+  let chunk, cs = Cstruct.split cs len in
   match t.state with
   | `Error e -> Error e
   | `NotConfigured -> Error `NotConfigured
   | `Init _ -> complete_handshake t >>= fun () -> write_bytes t cs
   | `Active tls ->
-    match Tls.Engine.send_application_data tls [cs] with
+    match Tls.Engine.send_application_data tls [chunk] with
     | Some (tls, data) ->
-      (t.state <- `Active tls; Utils.write_t t data)
+      Utils.write_t t data >>= fun () ->
+      t.state <- `Active tls;
+      Ok len
     | None -> Error (`Tls_other "socker not ready")
 
 let cs_of_ptr ptr_type buffer_ptr size =
@@ -198,7 +208,7 @@ let tls_write p buf size =
     let written = write_bytes ctx cs in
     let () = Root.set (to_voidp p) ctx in
     match written with
-    | Ok _ -> PosixTypes.Ssize.of_int (Unsigned.Size_t.to_int size)
+    | Ok written -> PosixTypes.Ssize.of_int written
     | Error e -> Root.set (to_voidp p) { ctx with error = Some e }; PosixTypes.Ssize.of_int (-1)
   with
   | Tls_want_pollin -> (PosixTypes.Ssize.of_int (-2))
@@ -226,7 +236,7 @@ let tls_close p =
       | `Active tls ->
         let (_, cs) = Tls.Engine.send_close_notify tls in
         Utils.write_t ctx cs
-      | _ -> Ok 0 in
+      | _ -> Ok () in
     match closed with
     | Ok _ -> Root.set (to_voidp p) { ctx with state = `Error `Eof; }; 0
     | Error _ -> -1
