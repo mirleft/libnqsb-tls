@@ -19,8 +19,6 @@ module Utils = struct
 
   open Unix
 
-  let o f g x = f (g x)
-
   let resolve host port =
     let proto = getprotobyname "tcp" in
     match getaddrinfo host port [AI_PROTOCOL proto.p_proto] with
@@ -30,11 +28,12 @@ module Utils = struct
 
   let write fd cs =
     let open Cstruct in
-    let buf = Cstruct.to_string cs in
+    let buf = to_string cs in
     match Unix.single_write fd buf 0 cs.len with
-    | exception (Unix_error (Unix.EAGAIN, _, _)) -> Ok 0
+    | exception (Unix_error (Unix.EAGAIN, _, _)) -> Ok `EAGAIN
     | exception (Unix_error (e, _, _)) -> Error (`UnixError (error_message e))
-    | res -> Ok res >>= fun res ->
+    | 0 -> Error `Eof
+    | res -> Ok (`Written res) >>= fun res ->
     match Unix.getsockopt_error fd with
     | None -> Ok res
     | Some err -> Error (`UnixError (error_message err))
@@ -48,7 +47,12 @@ module Utils = struct
 
   let rec write_full fd = function
     | cs when Cstruct.len cs = 0 -> Ok ()
-    | cs -> write fd cs >>= o (write_full fd ) (Cstruct.shift cs) >>= fun () -> Ok ()
+    | cs ->
+      match write fd cs with
+      | Error e -> Error e
+      | Ok `EAGAIN -> write_full fd cs
+      | Ok (`Written off) ->
+        write_full fd (Cstruct.shift cs off)
 
   let rec write_t t cs =
     match t.fd with
