@@ -198,7 +198,7 @@ let rec write_bytes t cs =
       Utils.write_t t data >>= fun () ->
       t.state <- `Active tls;
       Ok len
-    | None -> Error (`Tls_other "socker not ready")
+    | None -> Error (`Tls_other "socket not ready")
 
 let cs_of_ptr ptr_type buffer_ptr size =
   let buffer_char = Ctypes.coerce ptr_type (ptr char) buffer_ptr in
