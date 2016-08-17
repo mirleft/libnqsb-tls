@@ -7,6 +7,8 @@
 
 open Rresult
 
+[@@@landmark "auto"]
+
 let (</>) a b = a ^ "/" ^ b
 
 let concat l =

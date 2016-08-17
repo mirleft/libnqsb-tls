@@ -14,8 +14,9 @@ let generate dirname =
   let stubs = (module Bindings.Stubs : Cstubs_inverted.BINDINGS) in
   begin
     (* Generate the ML module that links in the generated C. *)
-    Cstubs_inverted.write_ml
-      (Format.formatter_of_out_channel ml_fd) ~prefix stubs;
+    Format.fprintf (Format.formatter_of_out_channel ml_fd)
+      "[%@%@%@landmark \"auto\"]\n%a@"
+      (Cstubs_inverted.write_ml ~prefix) stubs;
 
     (* Generate the C source file that exports OCaml functions. *)
     Format.fprintf (Format.formatter_of_out_channel c_fd)

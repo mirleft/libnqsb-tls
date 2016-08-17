@@ -2,7 +2,7 @@ BUILDDIR=_build
 VPATH=$(BUILDDIR)
 OCAMLDIR=$(shell ocamlopt -where)
 $(shell mkdir -p $(BUILDDIR) $(BUILDDIR)/stub $(BUILDDIR)/lib $(BUILDDIR)/stub_generator $(BUILDDIR)/echo_client $(BUILDDIR)/generated)
-PACKAGES=ipaddr,rresult,tls,ctypes.stubs,ctypes.foreign,nocrypto.unix,memcpy,hex
+PACKAGES=ipaddr,rresult,tls,ctypes.stubs,ctypes.foreign,nocrypto.unix,memcpy,hex,landmarks,landmarks.ppx
 CTYPES=$(shell ocamlfind query ctypes)
 OCAMLDEP=ocamldep
 
@@ -67,13 +67,13 @@ malloc: $(MALLOC_LIB)
 
 ifeq ($(OSTYPE),$(filter $(OSTYPE),Win32 Cygwin))
 $(BUILDDIR)/libtls$(EXTDLL): $(CAML_INIT) $(MALLOC_FILES) $(MALLOC_LIB) $(LIBFILES)
-	ocamlfind opt -o $@ -linkpkg -output-obj -verbose -package $(PACKAGES) $^
+	ocamlfind opt -g -annot -bin-annot -o $@ -linkpkg -output-obj -verbose -package $(PACKAGES) $^
 else ifeq ($(SYSTEM),$(filter $(SYSTEM),macosx))
 $(BUILDDIR)/libtls$(EXTDLL): $(CAML_INIT) $(MALLOC_FILES) $(MALLOC_LIB) $(LIBFILES)
-	ocamlfind opt -o $@ -linkpkg -runtime-variant _pic -verbose -ccopt -dynamiclib -package $(PACKAGES) $^
+	ocamlfind opt -g -annot -bin-annot -linkpkg -I lib/ -o $@ -runtime-variant _pic -verbose -ccopt -dynamiclib -package $(PACKAGES) $^
 else
 $(BUILDDIR)/libtls$(EXTDLL): $(CAML_INIT) $(MALLOC_FILES) $(MALLOC_LIB) $(LIBFILES)
-	ocamlfind opt -o $@ -linkpkg -output-obj -runtime-variant _pic -verbose -package $(PACKAGES) $^
+	ocamlfind opt -g -annot -bin-annot -I lib/ -o $@ -linkpkg -output-obj -runtime-variant _pic -verbose -package $(PACKAGES) $^
 endif
 
 stubs: $(GENERATED)
@@ -100,7 +100,7 @@ $(BUILDDIR)/%.o: %.c
 	$(CC) -c -o $@ -fPIC -I $(shell ocamlfind query ctypes) -I $(OCAMLDIR) -I $(OCAMLDIR)/../ctypes $<
 
 $(BUILDDIR)/%.cmx: %.ml
-	ocamlfind opt -c -o $@ -I $(BUILDDIR)/generated -I $(BUILDDIR)/lib -package $(PACKAGES) $<
+	ocamlfind opt -package $(PACKAGES) -c -o $@ -I $(BUILDDIR)/generated -I $(BUILDDIR)/lib $<
 
 $(BUILDDIR)/%.cmi: %.mli
 	ocamlfind c -c -o $@ -I $(BUILDDIR)/generated -I $(BUILDDIR)/lib -package $(PACKAGES) $<

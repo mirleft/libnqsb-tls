@@ -10,6 +10,8 @@ open Foreign
 open Tls
 open Rresult
 
+[@@@landmark "auto"]
+
 exception Tls_alert   of Tls.Packet.alert_type
 exception Tls_failure of Tls.Engine.failure
 

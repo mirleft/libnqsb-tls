@@ -9,6 +9,8 @@ open Nqsb
 open Rresult
 open Ctypes
 
+[@@@landmark "auto"]
+
 exception Tls_want_pollin
 exception Tls_want_pollout
 

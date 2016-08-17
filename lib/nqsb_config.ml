@@ -8,6 +8,8 @@
 open Ctypes
 open Tls
 
+[@@@landmark "auto"]
+
 type t = {
   ca_file : string option;
   ca_path : string option;
