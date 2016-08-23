@@ -6,7 +6,7 @@ LIBRESSL_LINK_FLAG = $(shell pkg-config --libs-only-L libtls)
 all: server.ocaml-tls client.ocaml-tls server.libressl client.libressl
 
 clean:
-	rm client.o server.o server.opt client.opt
+	rm server.ocaml-tls client.ocaml-tls server.libressl client.libressl
 
 client.ocaml-tls: client.c
 	$(CC) -o $@ $< -ltls $(OCAML_LINK_FLAG) $(OCAML_COMPILE_FLAG)
