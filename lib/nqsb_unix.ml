@@ -92,9 +92,10 @@ let tls_connect_aux ctx servername fd =
 
 let tls_connect_servername p host service servername =
   let ctx = to_voidp p |> Root.get in
-  Utils.connect host service >>|
-  tls_connect_aux ctx host |>
-  function
+  let connection =
+    Utils.connect host service >>= fun sock ->
+    tls_connect_aux ctx host sock in
+  match connection with
   | Error msg ->
     Root.set (to_voidp p) { ctx with error = Some msg }; -1
   | Ok state ->
