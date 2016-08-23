@@ -75,9 +75,10 @@ end
 
 let tls_connect_aux ctx servername fd =
 
-  (match ctx.config with
-  | None -> Error (`Tls_other "Context not configured")
-  | Some config -> Ok config)
+  (match ctx.state with
+   | `Configured config -> Ok config
+   | `NotConfigured -> Error (`Tls_other "Context not configured")
+   | _ -> Error (`Tls_other "Context already configured"))
 
   >>= fun (version, ciphers, authenticator, certificates) ->
   match authenticator with
@@ -135,6 +136,7 @@ let rec handle_tls t =
   match t.state with
   | `Error e -> Error e
   | `NotConfigured -> Error `NotConfigured
+  | `Configured _ -> Error `Configured
   | `Init (tls, cs) ->
     Utils.write_t t cs >>= fun _ ->
     let () = t.state <- `Active tls in handle_tls t
@@ -152,10 +154,11 @@ let rec complete_handshake t =
   | `Active tls when Tls.Engine.can_handle_appdata tls -> Ok ()
   | `Error e -> Error e
   | `NotConfigured -> Error `NotConfigured
+  | `Configured _ -> Error `Configured
   | `Active tls
-    | `Init (tls, _) ->
-     handle_tls t >>= fun cs ->
-     push_linger t cs; complete_handshake t
+  | `Init (tls, _) ->
+    handle_tls t >>= fun cs ->
+    push_linger t cs; complete_handshake t
 
 let tls_handshake p =
   try
@@ -191,6 +194,7 @@ let rec write_bytes t cs =
   match t.state with
   | `Error e -> Error e
   | `NotConfigured -> Error `NotConfigured
+  | `Configured _ -> Error `Configured
   | `Init _ -> complete_handshake t >>= fun () -> write_bytes t cs
   | `Active tls ->
     match Tls.Engine.send_application_data tls [chunk] with
@@ -251,9 +255,10 @@ let tls_close p =
 let tls_accept_socket p pp socket =
   let ctx = to_voidp p |> Root.get in
   let cctx =
-    (match ctx.config with
-     | None -> Error (`Tls_other "Context not configured")
-     | Some config -> Ok config)
+    (match ctx.state with
+     | `Configured config -> Ok config
+     | `NotConfigured -> Error (`Tls_other "Context not configured")
+     | _ -> Error (`Tls_other "Context already configured"))
     >>= fun (version, ciphers, authenticator, certificates) ->
     let config = Tls.Config.server ?version ?ciphers ?authenticator ~certificates () in
     let tls = Tls.Engine.server config in

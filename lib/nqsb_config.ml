@@ -255,7 +255,8 @@ let tls_configure tls_ptr tls_conf_ptr =
   in
   match ctx with
   | Ok ctx ->
-    Root.set (to_voidp tls_ptr) { tls with Nqsb.config = Some ctx }; 0
+     print_endline "loooooooooooooooooooool";
+    Root.set (to_voidp tls_ptr) { tls with Nqsb.state = `Configured ctx }; 0
   | Error msg ->
     Root.set (to_voidp tls_ptr) { tls with Nqsb.error = Some (`Tls_other msg) }; -1
 

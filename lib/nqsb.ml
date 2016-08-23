@@ -30,22 +30,24 @@ type tls_error = [ `Tls_alert of Tls.Packet.alert_type
                  | `Tls_other of string
                  | `Eof
                  | `NotConfigured
+                 | `Configured
                  | `UnixError of string ]
+
+type config_t =
+  (Tls.Core.tls_version * Tls.Core.tls_version) option *
+  Tls.Ciphersuite.ciphersuite list option *
+  X509.Authenticator.a option *
+  Tls.Config.own_cert
 
 type t = {
   mutable error : tls_error option;
-  config : (
-    (Tls.Core.tls_version * Tls.Core.tls_version) option *
-    Tls.Ciphersuite.ciphersuite list option *
-    X509.Authenticator.a option *
-    Tls.Config.own_cert
-  ) option ;
   mutable fd : Unix.file_descr option ;
   mutable linger : Cstruct.t option ;
   mutable state : [ `Active of Tls.Engine.state
                   | `Init of (Tls.Engine.state * Cstruct.t)
                   | `Error of tls_error
-                  | `NotConfigured ] ;
+                  | `NotConfigured
+                  | `Configured of config_t ] ;
 }
 
 let () = Nocrypto_entropy_unix.initialize ()
@@ -60,12 +62,12 @@ let tls_error p =
   | Some (`Tls_other msg) -> msg
   | Some `Eof -> "Connection closed"
   | Some `NotConfigured -> "struct tls not configured"
+  | Some `Configured -> "context configured but no connection applied"
   | Some (`UnixError s) -> Format.sprintf "Unix error: %s" s
   | None -> ""
 
 let tls_client _ =
   let tls_client = { error = None;
-                     config = None;
                      fd = None;
                      state = `NotConfigured;
                      linger = None;
@@ -74,7 +76,6 @@ let tls_client _ =
 
 let tls_server _ =
   let tls_server = { error = None;
-                     config = None;
                      fd = None;
                      state = `NotConfigured;
                      linger = None; } in
