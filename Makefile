@@ -13,6 +13,7 @@ BINDING_FILES = $(BUILDDIR)/lib/nqsb.cmx           \
 		$(BUILDDIR)/lib/nqsb_x509.cmx      \
 		$(BUILDDIR)/lib/nqsb_peer.cmx      \
 		$(BUILDDIR)/lib/nqsb_unix.cmx      \
+		$(BUILDDIR)/lib/nqsb_ciphers.cmx   \
 		$(BUILDDIR)/lib/nqsb_config.cmx
 
 GENERATOR_FILES= $(BINDING_FILES) \
@@ -30,6 +31,7 @@ LIBFILES=$(BUILDDIR)/lib/nqsb.cmx			\
 	 $(BUILDDIR)/lib/nqsb_x509.cmx			\
 	 $(BUILDDIR)/lib/nqsb_peer.cmx			\
 	 $(BUILDDIR)/lib/nqsb_unix.cmx			\
+	 $(BUILDDIR)/lib/nqsb_ciphers.cmx		\
 	 $(BUILDDIR)/lib/nqsb_config.cmx		\
          $(BUILDDIR)/lib/bindings.cmx			\
 	 $(BUILDDIR)/generated/tls_bindings.cmx		\
@@ -83,6 +85,7 @@ $(MALLOC_LIB): $(MALLOC_GENERATED) $(MALLOC_FILES)
 
 $(BUILDDIR)/lib/nqsb_config.cmx : $(BUILDDIR)/lib/nqsb_config.cmi
 $(BUILDDIR)/lib/nqsb_unix.cmx : $(BUILDDIR)/lib/nqsb_unix.cmi
+$(BUILDDIR)/lib/nqsb_ciphers.cmx : $(BUILDDIR)/lib/nqsb_ciphers.cmi
 $(BUILDDIR)/lib/nqsb_peer.cmx : $(BUILDDIR)/lib/nqsb_peer.cmi
 $(BUILDDIR)/lib/nqsb.cmx : $(BUILDDIR)/lib/nqsb.cmi
 

@@ -201,12 +201,8 @@ let tls_configure tls_ptr tls_conf_ptr =
 
   let parse_ciphers = function
     | Some cipher ->
-      ( match cipher with
-        | "secure"
-        | "default" -> Ok (Some Tls.Config.Ciphers.default)
-        | "all"
-        | "legacy" -> Ok (Some Tls.Config.Ciphers.supported)
-        | _ -> Error "Invalid ciphersuite" )
+      Nqsb_ciphers.cipherlist_of_cipherstring cipher >>= fun ciphers ->
+      Ok (Some ciphers)
     | None -> Ok None in
 
   let parse_authenticator c =
