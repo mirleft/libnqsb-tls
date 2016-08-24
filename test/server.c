@@ -1,4 +1,5 @@
 #include "tls.h"
+#include "args.h"
 #include <stdio.h>
 #include <time.h>
 #include <errno.h>
@@ -13,11 +14,11 @@
 #include <string.h>
 #include <fcntl.h>
 
-int config_server_context(struct tls *srv_ctx) {
+int config_server_context(struct tls *srv_ctx, struct args_s *args) {
 
   struct tls_config *config = tls_config_new();
 
-  if (tls_config_set_ciphers(config, "all") != 0) {
+  if (tls_config_set_ciphers(config, args->ciphersuite) != 0) {
     perror("Error while setting ciphers");
     tls_config_free(config);
     return -1;
@@ -48,7 +49,7 @@ int config_server_context(struct tls *srv_ctx) {
   return 0;
 }
 
-int server_loop(char *addr, char *port) {
+int server_loop(struct args_s *args) {
   int sock;
   int clt_fd;
   struct sockaddr_in srv_addr;
@@ -67,8 +68,8 @@ int server_loop(char *addr, char *port) {
   memset(&srv_addr, 0, sizeof(srv_addr));
 
   srv_addr.sin_family = AF_INET;
-  srv_addr.sin_addr.s_addr = inet_addr(addr);
-  srv_addr.sin_port = htons(atoi(port));
+  srv_addr.sin_addr.s_addr = inet_addr(args->addr);
+  srv_addr.sin_port = htons(atoi(args->port));
 
   if (bind(sock, (struct sockaddr *) &srv_addr, sizeof(srv_addr)) < 0) {
     perror("Bind error");
@@ -88,7 +89,7 @@ int server_loop(char *addr, char *port) {
   struct tls *srv_ctx = tls_server();
   struct tls *srv_cctx;
 
-  if (config_server_context(srv_ctx) != 0)
+  if (config_server_context(srv_ctx, args) != 0)
     return -1;
 
   if (tls_accept_socket(srv_ctx, &srv_cctx, clt_fd) != 0) {
@@ -110,7 +111,14 @@ int server_loop(char *addr, char *port) {
 }
 
 int main(int ac, char **av) {
+  struct args_s *args;
+  int exit_val = 0;
+
+  if ((args = parse_args(ac, av)) == NULL)
+    return -1;
 
   tls_init();
-  return server_loop("127.0.0.1", "4433");
+  exit_val = server_loop(args);
+  free(args);
+  return exit_val;
 }

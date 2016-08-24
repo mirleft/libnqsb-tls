@@ -9,16 +9,16 @@ clean:
 	rm server.ocaml-tls client.ocaml-tls server.libressl client.libressl
 
 client.ocaml-tls: client.c
-	$(CC) -o $@ $< -ltls $(OCAML_LINK_FLAG) $(OCAML_COMPILE_FLAG)
+	$(CC) -o $@ args.c $< -ltls $(OCAML_LINK_FLAG) $(OCAML_COMPILE_FLAG)
 
 server.ocaml-tls: server.c
-	$(CC) -o $@ $< -ltls $(OCAML_LINK_FLAG) $(OCAML_COMPILE_FLAG)
+	$(CC) -o $@ args.c $< -ltls $(OCAML_LINK_FLAG) $(OCAML_COMPILE_FLAG)
 
 client.libressl: client.c
-	$(CC) -o $@ $< -ltls $(LIBRESSL_LINK_FLAG) $(OCAML_COMPILE_FLAG)
+	$(CC) -o $@ args.c $< -ltls $(LIBRESSL_LINK_FLAG) $(OCAML_COMPILE_FLAG)
 
 server.libressl: server.c
-	$(CC) -o $@ $< -ltls $(LIBRESSL_LINK_FLAG) $(OCAML_COMPILE_FLAG)
+	$(CC) -o $@ args.c $< -ltls $(LIBRESSL_LINK_FLAG) $(OCAML_COMPILE_FLAG)
 
 
 .PHONY: all clean
