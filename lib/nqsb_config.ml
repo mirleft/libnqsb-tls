@@ -151,7 +151,7 @@ let tls_config_parse_protocols protocol_result s =
         else
           false, pattern in
       let flag =
-        match String.lowercase pattern with
+        match String.lowercase_ascii pattern with
         | "all"
         | "legacy"  -> List.assoc "TLS_PROTOCOLS_ALL" tls_protocol_version_enum
         | "secure"
