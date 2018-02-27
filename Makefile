@@ -2,7 +2,7 @@ BUILDDIR=_build
 VPATH=$(BUILDDIR)
 OCAMLDIR=$(shell ocamlopt -where)
 $(shell mkdir -p $(BUILDDIR) $(BUILDDIR)/stub $(BUILDDIR)/lib $(BUILDDIR)/stub_generator $(BUILDDIR)/echo_client $(BUILDDIR)/generated)
-PACKAGES=ipaddr,rresult,tls,ctypes.stubs,ctypes.foreign,nocrypto.unix,memcpy,hex
+PACKAGES=ipaddr,rresult,tls,ctypes.stubs,ctypes.foreign,nocrypto.unix,memcpy,hex,ptime.clock.os
 CTYPES=$(shell ocamlfind query ctypes)
 OCAMLDEP=ocamldep
 

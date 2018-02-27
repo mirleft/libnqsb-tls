@@ -11,3 +11,4 @@ PKG rresult
 PKG ipaddr
 PKG memcpy
 PKG hex
+PKG ptime.clock.os

@@ -90,7 +90,7 @@ let certs_of_pem_dir path =
   |> concat >>= function l -> Ok (List.concat l)
 
 let authenticator param =
-  let time = Unix.gettimeofday () in
+  let time = Ptime_clock.now () in
   let of_cas cas =
     X509.Authenticator.chain_of_trust ~time cas in
   match param with
